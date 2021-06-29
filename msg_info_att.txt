@@ -1,0 +1,17 @@
+[11:02:39:995] Adaura Technologies R3 Series 1-Channel RF Attenuator (95dB, 6GHz)␍␊
+[11:02:39:995] ␍␊
+[11:02:39:995] ---- Device Information ----␍␊
+[11:02:39:995] Model: AD-USB1AR36G95␍␊
+[11:02:39:995] SN: R3160950387␍␊
+[11:02:39:995] FW Ver: 2.07␍␊
+[11:02:39:995] FW Date: Jul  1 2020␍␊
+[11:02:39:995] BL Ver: 3.60␍␊
+[11:02:39:995] MFG Date: JUN2020␍␊
+[11:02:39:995] Default Attenuations: 95.0 ␍␊
+[11:02:39:995] ␍␊
+[11:02:39:995] ---- TCP/IP Information ----␍␊
+[11:02:39:995] IP Address: not connected␍␊
+[11:02:39:995] Subnet: 255.255.255.0␍␊
+[11:02:39:995] Gateway: 192.168.1.1␍␊
+[11:02:39:995] DHCP: Disabled␍␊
+[11:02:39:995] # 
