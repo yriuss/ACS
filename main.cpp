@@ -25,34 +25,7 @@
 
 
 
-int main(int argc, char** argv) {
-
-    using namespace std;
-
-	TAcs acs;
-	//Attenuator att("R3160950386");
-	acs.parseCmd(argc,argv);
-	acs.connectAttenuators();
-	acs.printTest();
-	acs.AttenuatePot();
-	
-	//att.connect();
-	//att.AttenuatePot(50);
-	acs.setPhases();
-	//acs.printTest();
-	
-
-	int DNP3Address = 1;
-	int i;
-	pthread_t t1;
-		if (acs.connectToCOI(SERVER_ADDR,20000))
-		{
-			acs.connectToOutstation ("192.168.1.101",20000);
-			while(1){
-				if (acs.readDNP3frame ())
-				{
-					
-					//DNP3Address = acs.getDNP3Address ();
+DNP3Address ();
 					
 					if (DNP3Address==0)
 					{
