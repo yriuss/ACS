@@ -47,22 +47,7 @@ int main(int argc, char** argv) {
 	pthread_t t1;
 		if (acs.connectToCOI(SERVER_ADDR,20000))
 		{
-			acs.connectToOutstation ("192.168.1.101",20000);
-			while(1){
-				if (acs.readDNP3frame ())
-				{
-					
-					//DNP3Address = acs.getDNP3Address ();
-					
-					if (DNP3Address==0)
-					{
-						printf("nothing");
-						break;
-					}
-					acs.talkToOutstation("192.168.1.101",20000,t1);
-				}
-
-				else {
+			acs.connectToOutsta
 					break;
 				}
 			} 
