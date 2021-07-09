@@ -1,7 +1,7 @@
 #include "TTcpIPServer.h"
 
 	
-int TTcpIPServer::createSocket (char* serverAddr, int port)
+int TTcpIPServer::createSocket (const char* serverAddr, int port)
 {
 	fprintf(stdout, "Starting server\n");
 /* Creates a IPv4 socket */
@@ -71,7 +71,7 @@ int TTcpIPServer::Read (char* buffer, int len)
 	/* limpando a string do payload */
 	memset(buffer, 0x0, len);
 	int message_len;
-	message_len = read(clientfd, buffer, len);		
+	message_len = read(clientfd, buffer, len);	
 	return message_len;
 }
 
@@ -81,7 +81,7 @@ int TTcpIPServer::Write (char* buffer, int len)
 	{
 		return 0;
 	}	
-	memset(buffer, 0x0, LEN);
+	memset(buffer, 0x0, len);
 	return 1;
 }
 	

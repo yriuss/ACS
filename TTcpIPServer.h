@@ -1,7 +1,6 @@
 #ifndef TTcpIPServer_H
 #define TTcpIPServer_H
-/* Sockets buffers length */
-#define LEN 4096 //tamanho da string do payload
+
 #include<string>
 #include<iostream>
 #include <cstdlib>
@@ -26,7 +25,7 @@ class TTcpIPServer
 		int port;
 		
 	public:
-		int createSocket(char* serverAddr, int port);
+		int createSocket(const char* serverAddr, int port);
 		int Bind();
 		int Listen ();
 		int Accept ();

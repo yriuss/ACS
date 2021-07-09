@@ -7,7 +7,7 @@
 /* Sockets buffers length */
 
 	
-int TTcpIPClient::createSocket (char* serverAddr, int port)
+int TTcpIPClient::createSocket (const char* serverAddr, int port)
 {	
 	fprintf(stdout, "Starting Client ...\n");
 	/*
@@ -46,7 +46,7 @@ int TTcpIPClient::Connect ()
 void TTcpIPClient::Write(char* buffer, int len)
 {
 	write(sockfd, buffer, len);
-	memset(buffer, 0x0, LEN);
+	memset(buffer, 0x0, len);
 }
 
 int message_len;
@@ -57,7 +57,8 @@ void* function (void *arg)
 	char *buffer = (char *)(arg);
 	message_len = 0;
 	printf("\nWaiting for the message\n");
-	message_len = read(sock,buffer,LEN);
+	message_len = read(sock,buffer,512);
+	return arg;
 }
 
 
@@ -65,7 +66,7 @@ void* function (void *arg)
 int TTcpIPClient::Read(char* buffer, int len, pthread_t t1)
 {	
 	sock = sockfd;
-	memset(buffer, 0x0, LEN);
+	memset(buffer, 0x0, len);
 	message_len = 0;
 	int sock = sockfd;
 	pthread_create(&t1, NULL, function, (void *)(buffer));

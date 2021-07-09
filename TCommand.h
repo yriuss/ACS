@@ -23,6 +23,7 @@
 
 typedef float ph_arr[3];
 typedef float attenuation_arr[4];
+
 class TCommand {
 public:
     TCommand();

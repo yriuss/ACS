@@ -37,23 +37,39 @@
 
 //#define ARCH_RASP 1
 #define DEBUG_MODE 1
+#define OPEN_DNP3_LIB 1
 
 #ifdef ARCH_RASP
 #include <pigpio.h>
 #endif
 
+
+/* Sockets buffers length */
+#define LEN 512 //tamanho da string do payload
+#define LSBy(num) \
+	(char) num & 0x00FF
+#define MSBy(num) \
+	(char) (num >> 8)
+
+#define CRC16_DNP 0xA6BC ///Reversed 0x3D65
+typedef unsigned char data_arr[16];
+
 #include "TTcpIPServer.h"
 #include "TTcpIPClient.h"
 #include <memory>
 #include <csignal>
-#define LEN 10000
-
-#define  SERVER_ADDR "127.0.0.1"//"192.168.0.221" //endereço da comunicaçao entre o tcpserver e o com master
-#define  SERVER_ADDR1 "192.168.1.101"///"192.168.1.101" //endereço entre tcpclient e o outstation
-#define  SERVER_ADDR2 "192.168.26.124"
-#define  SERVER_ADDR3 "192.168.26.124"
+#include <stdio.h>
+#include <stdint.h>
+#include <vector>
 
 
+//#define LEN 10000
+
+
+#define revertCRC(num) \
+    (uint16_t) ((num >> 8) << 8) + (((num << 8) >> 8) & 0xFF)
+
+uint16_t crc16(uint8_t const *data, size_t size);
 
 class TAcs: public TCommand{
 private:
@@ -62,8 +78,13 @@ private:
 
     TTcpIPServer server;
     int COIPort;
+#ifdef OPEN_DNP3_LIB
     char DNP3Frame[LEN];
-    int DNP3FrameLen;
+    unsigned short int DNP3FrameLen;
+    char control;
+#endif
+    char DNP3Msg[LEN];
+    unsigned short int DNP3MsgLen;
     int DNP3Addr;
     TTcpIPClient client;
 public:
@@ -72,12 +93,18 @@ public:
     virtual ~TAcs();
 
 	/* Communication*/
-	int connectToCOI(char* COIAddr, int COIPort);
-	int readDNP3frame ();
+#ifdef OPEN_DNP3_LIB
+    void calculateMsgLen();
+#endif
+	int connectToCOI(const char* COIAddr, int COIPort);
+    int read_dnp_frame ();
+	int read_dnp_msg ();
 	int getDNP3Address ();
     int connectToOutstation (char* OutstationAddr,int port);
 	int talkToOutstation (char* outstationAddr,int port,pthread_t t1);
+    void gen_header();
 	void closeConnection();
+    uint32_t generateCRC();
 
     /* Setting attenuations and phase shifts*/
 	void setPhases();
@@ -156,8 +183,8 @@ public:
     const short unsigned int mapPort2[8] = {8, 25, 24, 23, 18, 7, 1, 12};
 };
 
-int GetPort(int DNP3Address);
-char* GetIPAddress(int DNP3Address);
+
+void calculateMsgLen(char* msg);
 
 #endif /* TACS_H */
 

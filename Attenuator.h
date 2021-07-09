@@ -7,6 +7,13 @@
 #include "Serial.h"
 
 //#define DEBUG_ATTENUATOR
+#define LSBy(num) \
+	(char) num & 0x00FF
+#define MSBy(num) \
+	(char) (num >> 8)
+
+#define CRC16_DNP 0xA6BC ///Reversed 0x3D65
+
 
 enum LogLevel
 {
@@ -17,6 +24,7 @@ enum LogLevel
 	ATTENUATOR_3,
 	ATTENUATOR_4
 };
+
 
 class Attenuator
 {
@@ -31,10 +39,10 @@ private:
 public:
 
 	Attenuator(const char* serialNumber);
-        Attenuator& connect();
-        Attenuator& unconnect();
-        bool isConnected();
-        std::string getSerialPort();
+    Attenuator& connect();
+    Attenuator& unconnect();
+    bool isConnected();
+    std::string getSerialPort();
 	Attenuator& AttenuatePot(const float powerdB);
 	~Attenuator();
 };

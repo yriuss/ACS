@@ -1,8 +1,6 @@
 #ifndef TTcpIPClient_H
 #define TTcpIPClient_H
 
-/* Sockets buffers length */
-#define LEN 4096 //tamanho da string do payload
 #include<string>
 #include<iostream>
 #include <cstdlib>
@@ -27,7 +25,7 @@ class TTcpIPClient
 		int connected;
 		int port;	
 	public:
-		int createSocket (char* serverAddr, int port);
+		int createSocket (const char* serverAddr, int port);
 		int Connect ();
 		void Write(char* buffer, int len);
 		int Read(char* buffer, int len, pthread_t t1);
