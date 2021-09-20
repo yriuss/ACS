@@ -364,3 +364,129 @@ TAcs::~TAcs() {
     gpioTerminate();
 #endif
 }
+
+void TAcs::interceptPacket(int argc, char** argv){
+	// IPv4 address of the interface we want to sniff
+	std::string interfaceIPAddr = "192.168.10.15";
+
+	// find the interface by IP address
+	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr.c_str());
+	if (dev == NULL)
+	{
+		printf("Cannot find interface with IPv4 address of '%s'\n", interfaceIPAddr.c_str());
+		exit(1);
+	}
+	
+
+	
+
+	// Get device info
+	// ~~~~~~~~~~~~~~~
+
+	// before capturing packets let's print some info about this interface
+	printf("Interface info:\n");
+	// get interface name
+	printf("   Interface name:        %s\n", dev->getName().c_str());
+	// get interface description
+	printf("   Interface description: %s\n", dev->getDesc().c_str());
+	// get interface MAC address
+	printf("   MAC address:           %s\n", dev->getMacAddress().toString().c_str());
+	// get default gateway for interface
+	printf("   Default gateway:       %s\n", dev->getDefaultGateway().toString().c_str());
+	// get interface MTU
+	printf("   Interface MTU:         %d\n", dev->getMtu());
+	// get DNS server if defined for this interface
+	if (dev->getDnsServers().size() > 0)
+		printf("   DNS server:            %s\n", dev->getDnsServers().at(0).toString().c_str());
+
+	// open the device before start capturing/sending packets
+	if (!dev->open())
+	{
+		printf("Cannot open device\n");
+		exit(1);
+	}
+
+	pcpp::IPFilter ipFilter("192.168.1.20", pcpp::SRC_OR_DST);
+
+	// create a filter instance to capture only TCP traffic
+	pcpp::ProtoFilter protocolFilter(pcpp::ICMP);
+
+	// create an AND filter to combine both filters - capture only TCP traffic on port 80
+	pcpp::AndFilter andFilter;
+	andFilter.addFilter(&ipFilter);
+	andFilter.addFilter(&protocolFilter);
+
+	// set the filter on the device
+	dev->setFilter(andFilter);
+
+	// create the stats object
+	PacketStats stats;
+
+
+	// Async packet capture with a callback function
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	printf("\nStarting async capture...\n");
+
+	
+
+	// start capture in async mode. Give a callback function to call to whenever a packet is captured and the stats object as the cookie
+	dev->startCapture(onPacketArrives, &stats);
+
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	
+	std::string str;
+	this->parseCmd(argc, argv);
+	// stop capturing packets
+	while(1){
+			str = stats.cb_packet.toString();
+			switch(this->manual){
+				case 1:
+					if(!str.empty() && stats.icmpPacketCount_cb){
+						std::cout << str << std::endl;
+						if(!str.substr(str.find("192.168.10.10"), 14).compare("192.168.10.103")){
+							std::cout << "ip atual eh: " << "192.168.10.103" << std::endl;
+							if(stats.icmpPacketCount_cb > 100)
+								break;
+						}
+						if(!str.substr(str.find("192.168.10.10"), 14).compare("192.168.10.102")){
+							std::cout << "ip atual eh: " << "192.168.10.102" << std::endl;
+							if(stats.icmpPacketCount_cb > 100)
+								break;
+						}
+					}
+				case 0:
+					this->parseCmd(argc, argv);
+				default:
+					break;
+
+			}
+	}
+	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	
+	//pcpp::multiPlatformSleep(120); 
+	dev->stopCapture();
+	std::cout << "Time difference = " << std::dec << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+
+	printf("\nResults:\n");
+	stats.printToConsole();
+
+	// clear stats
+	stats.clear();
+
+	// close the device before application ends
+	dev->close();
+}
+static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
+{
+	// extract the stats object form the cookie
+	PacketStats* stats = (PacketStats*)cookie;
+
+	// parsed the raw packet
+	pcpp::Packet parsedPacket(packet);
+
+	stats->cb_rawpacket = packet;
+	stats->cb_packet = parsedPacket;
+	// collect stats from packet
+	stats->consumePacket(parsedPacket);
+	
+}
