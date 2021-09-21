@@ -66,6 +66,23 @@ typedef unsigned char data_arr[16];
 //#define LEN 10000
 
 
+#include "stdlib.h"
+#include <iostream>
+#include "PcapLiveDeviceList.h"
+#include "SystemUtils.h"
+#include <chrono>
+#include <PayloadLayer.h>
+#include "stdlib.h"
+#include "SystemUtils.h"
+#include "Packet.h"
+#include "EthLayer.h"
+#include "IPv4Layer.h"
+#include "TcpLayer.h"
+#include "HttpLayer.h"
+#include "PcapFileDevice.h"
+#include "SystemUtils.h"
+#include <string>
+
 #define revertCRC(num) \
     (uint16_t) ((num >> 8) << 8) + (((num << 8) >> 8) & 0xFF)
 
@@ -75,7 +92,7 @@ class TAcs: public TCommand{
 private:
 	TPhShifter ps[3];
 	Attenuator att0{"R3160950384"},att1{"R3160950386"},att2{"R3160950383"},att3{"R3160950387"};
-
+	bool manual = 0;
     TTcpIPServer server;
     int COIPort;
 #ifdef OPEN_DNP3_LIB
@@ -92,6 +109,7 @@ public:
     TAcs();
     virtual ~TAcs();
 
+    void interceptPacket(int argc, char** argv);
 	/* Communication*/
 #ifdef OPEN_DNP3_LIB
     void calculateMsgLen();
@@ -106,7 +124,7 @@ public:
 	void closeConnection();
     void calculateMsgLen(char* msg);
     uint32_t generateCRC();
-
+    
     /* Setting attenuations and phase shifts*/
 	void setPhases();
 
@@ -184,8 +202,86 @@ public:
     const short unsigned int mapPort2[8] = {8, 25, 24, 23, 18, 7, 1, 12};
 };
 
+class PacketStats
+{
+	
+	//pcpp::Packet& cb_packet;
+	
+public:
+	int ethPacketCount;
+	int ipv4PacketCount;
+	int ipv6PacketCount;
+	int icmpPacketCount;
+	int icmpPacketCount_cb;
+	int tcpPacketCount;
+	int udpPacketCount;
+	int dnsPacketCount;
+	int httpPacketCount;
+	int sslPacketCount;
+	int sshPacketCount;
+	pcpp::Packet cb_packet;
+	pcpp::RawPacket* cb_rawpacket;
+	/**
+	 * Clear all stats
+	 */
+	void clear() { icmpPacketCount_cb = 0; icmpPacketCount = 0; sshPacketCount = 0; ethPacketCount = 0; ipv4PacketCount = 0; ipv6PacketCount = 0; tcpPacketCount = 0; udpPacketCount = 0; tcpPacketCount = 0; dnsPacketCount = 0; httpPacketCount = 0; sslPacketCount = 0; }
 
+	/**
+	 * C'tor
+	 */
+	PacketStats() { clear(); }
 
+	/**
+	 * Collect stats from a packet
+	 */
+	void consumePacket(pcpp::Packet& packet)
+	{
+		//this->cb_packet = packet;
+        
+		if (packet.isPacketOfType(pcpp::Ethernet))
+			ethPacketCount++;
+		if (packet.isPacketOfType(pcpp::SSH))
+			sshPacketCount++;
+		if (packet.isPacketOfType(pcpp::ICMP)){
+            icmpPacketCount_cb++;
+			icmpPacketCount++;
+			
+		}
+		if (packet.isPacketOfType(pcpp::IPv4))
+			ipv4PacketCount++;
+		if (packet.isPacketOfType(pcpp::IPv6))
+			ipv6PacketCount++;
+		if (packet.isPacketOfType(pcpp::TCP))
+			tcpPacketCount++;
+		if (packet.isPacketOfType(pcpp::UDP))
+			udpPacketCount++;
+		if (packet.isPacketOfType(pcpp::DNS))
+			dnsPacketCount++;
+		if (packet.isPacketOfType(pcpp::HTTP))
+			httpPacketCount++;
+		if (packet.isPacketOfType(pcpp::SSL))
+			sslPacketCount++;
+	}
+
+	/**
+	 * Print stats to console
+	 */
+	void printToConsole()
+	{
+		printf("Ethernet packet count: %d\n", ethPacketCount);
+		printf("IPv4 packet count:     %d\n", ipv4PacketCount);
+		printf("IPv6 packet count:     %d\n", ipv6PacketCount);
+		printf("TCP packet count:      %d\n", tcpPacketCount);
+		printf("UDP packet count:      %d\n", udpPacketCount);
+		printf("DNS packet count:      %d\n", dnsPacketCount);
+		printf("HTTP packet count:     %d\n", httpPacketCount);
+		printf("SSL packet count:      %d\n", sslPacketCount);
+		printf("ICMP packet count:      %d\n", icmpPacketCount);
+	}
+};
+
+static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie);
+void calculateMsgLen(char* msg);
 
 #endif /* TACS_H */
 

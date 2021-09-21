@@ -1,3 +1,4 @@
+include /usr/local/etc/PcapPlusPlus.mk
 
 LIBS_ARC=-lpigpio -lrt -lpthread
 LIBS_PC=-lrt -lpthread
@@ -14,11 +15,13 @@ all:
 	g++ -c TTable.cpp -o TTable.o
 	g++ -c TPhShifter.cpp -o TPhShifter.o
 	g++ -c TCommand.cpp -o TCommand.o
-	g++ -c TAcs.cpp -o TAcs.o 
-	g++ main.cpp -pthread -I. TServer.o TClient.o TCommand.o TPhShifter.o TAcs.o TTable.o ToolBoxAndUtilities.o Serial.o Attenuator.o -o acs -lrt -lpthread
+	g++ $(PCAPPP_INCLUDES) -c TAcs.cpp -o TAcs.o
+	g++ $(PCAPPP_INCLUDES) -c -o main.o main.cpp
+
+	g++ -pthread $(PCAPPP_LIBS_DIR) -static-libstdc++ -o acs -I. main.o TServer.o TClient.o TCommand.o TPhShifter.o TAcs.o TTable.o ToolBoxAndUtilities.o Serial.o Attenuator.o $(PCAPPP_LIBS) -lrt -lpthread
 
 run: 
-	./acs
+	sudo ./acs
 	
 clean:
 	rm -f ToolBoxAndUtilities.o
@@ -29,3 +32,4 @@ clean:
 	rm -f TAcs.o
 	rm -f TCommand.o
 	rm -f main.o
+	rm acs

@@ -12,6 +12,7 @@
 #include "TAcs.h"
 #include "Attenuator.h"
 #include <memory>
+
 //#include <pigpio.h>
 
 
@@ -72,36 +73,8 @@ int main(int argc, char** argv) {
 	//att.connect();
 	//att.AttenuatePot(50);
 	//acs.setPhases();
-	//acs.printTest();
 	
-
-	int DNP3Address = 1;
-	int i;
-	pthread_t t1;
-		if (acs.connectToCOI(SERVER_ADDR,20000))
-		{
-			acs.connectToOutstation (SERVER_ADDR1,20000);
-			while(1){
-				if (acs.read_dnp_msg ())
-				{
-					
-					//DNP3Address = acs.getDNP3Address ();
-					
-					if (DNP3Address==0)
-					{
-						printf("nothing");
-						break;
-					}
-					acs.talkToOutstation(SERVER_ADDR,20002,t1);
-				}
-
-				else {
-					break;
-				}
-			} 
-		
-		}
-		acs.closeConnection();
+	acs.interceptPacket(argc, argv);
 	//acs.parseCmd("cmd -pi 1 2 3 4 5 6 7");
     //testTCommand();
     //testTTablet();
