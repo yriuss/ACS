@@ -104,6 +104,7 @@ public:
 	int talkToOutstation (char* outstationAddr,int port,pthread_t t1);
     void gen_header();
 	void closeConnection();
+    void calculateMsgLen(char* msg);
     uint32_t generateCRC();
 
     /* Setting attenuations and phase shifts*/
@@ -184,7 +185,7 @@ public:
 };
 
 
-void calculateMsgLen(char* msg);
+
 
 #endif /* TACS_H */
 

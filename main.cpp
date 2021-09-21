@@ -24,7 +24,7 @@ typedef char server_arr[14];
 //#define  SERVER_ADDR3 (server_arr*) "192.168.26.124"
 
 char SERVER_ADDR[10] = "127.0.0.1";
-char SERVER_ADDR1[14] = "192.168.1.101";
+char SERVER_ADDR1[14] = "192.168.1.102";
 char SERVER_ADDR2[15] = "192.168.26.124";
 char SERVER_ADDR3[15] = "192.168.26.124";
 
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 	pthread_t t1;
 		if (acs.connectToCOI(SERVER_ADDR,20000))
 		{
-			acs.connectToOutstation (SERVER_ADDR,20002);
+			acs.connectToOutstation (SERVER_ADDR1,20000);
 			while(1){
 				if (acs.read_dnp_msg ())
 				{

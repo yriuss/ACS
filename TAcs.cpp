@@ -82,13 +82,7 @@ int TAcs::connectToCOI(const char* COIAddr, int COIPort)
 }
 
 int TAcs::read_dnp_frame ()
-{		
-	/**
-	* This method receives the DNP3Msg from the COI
-	* @return True or False
-	* @author Daniel L. S. Nascimento
-	* @since  14-05-2020
-	*/
+{
 	memset(DNP3Frame, 0x0, LEN);
 
 	if((DNP3FrameLen = server.Read(DNP3Frame, LEN)) <= 0) 
@@ -141,29 +135,29 @@ void TAcs::gen_header(){
 
 #ifdef OPEN_DNP3_LIB
 	printf("\n\n\n\n");
+	printf("Mensagem gerada pelo COI:\n");
+	for(int i = 0; i < DNP3FrameLen; i++)
+		printf("%02x ", DNP3Frame[i]&0xFF);
+
+	printf("\nMensagem após passar pelo CAT:\n");
 	for(int i = 0; i < DNP3FrameLen; i++)
 		printf("%02x ", DNP3Msg[i]&0xFF);
 	printf("\n");
-	for(int i = 0; i < DNP3FrameLen; i++)
-		printf("%02x ", DNP3Frame[i]&0xFF);
-	printf("\n\n\n\n");
+
+	
+	//printf("\n\n\n\n");
 
 	for(int i = 0; i < DNP3FrameLen; i++)
 		DNP3Msg[i] = DNP3Frame[i];
-	printf("%d\n", DNP3MsgLen);
+
+	//printf("%d\n", DNP3MsgLen);
 	DNP3MsgLen = DNP3FrameLen;
 #else
 #endif
 }
 
 int TAcs::read_dnp_msg ()
-{		
-	/**
-	* This method receives the DNP3Msg from the COI
-	* @return True or False
-	* @author Daniel L. S. Nascimento
-	* @since  14-05-2020
-	*/
+{
 
 #ifdef OPEN_DNP3_LIB
 	read_dnp_frame();
@@ -187,6 +181,7 @@ int TAcs::read_dnp_msg ()
 	printf("\n\n");
 	*/
 	int i;
+	/*
 	printf("\n\n");
 	std::cout << "Read message: " << std::endl;
 	for (i = 0; i < DNP3MsgLen - 1; i++)
@@ -194,7 +189,7 @@ int TAcs::read_dnp_msg ()
 		printf("%x ", DNP3Msg[i]&0xFF);
 	}
 	printf("%x\n", DNP3Msg[i]&0xFF);
-	printf("\n\n");			
+	printf("\n\n");	*/		
 
 	return 1;
 }
@@ -251,7 +246,7 @@ int TAcs::connectToOutstation (char* OutstationAddr,int port){
 
 int TAcs::talkToOutstation (char* OutstationAddr,int port, pthread_t t1)
 {
-		
+		/*
 	printf("\n\n");
 	std::cout << "Wrote message: " << std::endl;
 	int i;
@@ -261,10 +256,11 @@ int TAcs::talkToOutstation (char* OutstationAddr,int port, pthread_t t1)
 	}
 	printf("%x\n", DNP3Msg[i]&0xFF);
 	printf("\n\n");
-	
+	*/
 	client.Write(DNP3Msg, DNP3MsgLen);
 	do{
 		DNP3MsgLen = client.Read(DNP3Msg, LEN, t1);
+		/*
 		printf("\n\n");
 		std::cout << "Read message from outstation: " << std::endl;
 		for (i = 0; i < DNP3MsgLen - 1; i++)
@@ -272,16 +268,15 @@ int TAcs::talkToOutstation (char* OutstationAddr,int port, pthread_t t1)
 			printf("%x ", DNP3Msg[i]&0xFF);
 		}
 		printf("%x\n", DNP3Msg[i]&0xFF);
-		printf("\n\n");
+		printf("\n\n");*/
 		if(DNP3MsgLen>0){
 			server.Write(DNP3Msg,DNP3MsgLen);
 		}
-		printf("\n carregando\n");
+		printf("\nloading...\n");
 	}while(DNP3MsgLen>0);
 
 	signal(SIGCHLD,SIG_IGN);
 	
-	printf ("correct!!\n");
 	if (DNP3MsgLen==0)
 	{
 		return 0;		
